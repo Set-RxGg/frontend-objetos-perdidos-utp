@@ -5,40 +5,37 @@ on:
     branches:
       - main
       - develop
+
   pull_request:
     branches:
       - main
       - develop
 
 jobs:
-  ci:
+  quality:
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
         with:
           version: 10
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm' # Almacena en caché los módulos para acelerar futuros builds
+          cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile # Fuerza el uso exacto del pnpm-lock.yaml
+      - run: pnpm install
 
-      - name: Run Linters
-        run: pnpm lint
+      - run: pnpm lint
 
-      - name: Run Tests
-        run: pnpm test # Agregado aquí para suplir lo que quitamos del pre-commit
+      - run: pnpm build
 
-      - name: Build Application
-        run: pnpm build
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
         env:
-          NEXT_PUBLIC_API_URL: "https://example.com" # Evita fallos si Next.js exige variables en compilación
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
