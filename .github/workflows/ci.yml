@@ -1,0 +1,44 @@
+name: Frontend CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm' # Almacena en caché los módulos para acelerar futuros builds
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile # Fuerza el uso exacto del pnpm-lock.yaml
+
+      - name: Run Linters
+        run: pnpm lint
+
+      - name: Run Tests
+        run: pnpm test # Agregado aquí para suplir lo que quitamos del pre-commit
+
+      - name: Build Application
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_API_URL: "https://example.com" # Evita fallos si Next.js exige variables en compilación
