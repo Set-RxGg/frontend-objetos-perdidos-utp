@@ -1,6 +1,10 @@
-import type { LoginRequest, LoginResponse } from '../interfaces';
+import type {
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+} from '../interfaces';
 
-import { loginMock } from '../mocks';
+import { loginMock, registerMock } from '../mocks';
 
 class AuthService {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
@@ -10,6 +14,13 @@ class AuthService {
 
     return loginMock;
   }
-}
 
+  async register(data: RegisterRequest): Promise<LoginResponse> {
+    console.log('AuthService.register', data);
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    return registerMock;
+  }
+}
 export const authService = new AuthService();
