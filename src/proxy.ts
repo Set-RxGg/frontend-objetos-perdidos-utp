@@ -2,8 +2,13 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const publicRoutes = ['/auth/login', '/auth/register'];
+const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === 'true';
 
 export function proxy(request: NextRequest) {
+  if (useMocks) {
+    return NextResponse.next();
+  }
+
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get('access_token')?.value;
 
