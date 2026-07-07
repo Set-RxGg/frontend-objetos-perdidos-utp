@@ -74,6 +74,29 @@ class ReportesService {
     return data;
   }
 
+  async update(
+    id: string,
+    payload: CreateReporteRequest,
+  ): Promise<{ status: string; data: Reporte }> {
+    const formData = new FormData();
+    formData.append('nombre_objeto', payload.nombre_objeto);
+    formData.append('descripcion', payload.descripcion);
+    formData.append('ubicacion', payload.ubicacion);
+    formData.append('lugar_entrega', payload.lugar_entrega);
+    if (payload.foto) {
+      formData.append('foto', payload.foto);
+    }
+
+    const { data } = await api.put<{ status: string; data: Reporte }>(
+      `/reportes/${id}`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      },
+    );
+    return data;
+  }
+
   async delete(id: string): Promise<{ status: string; message: string }> {
     const { data } = await api.delete<{ status: string; message: string }>(
       `/reportes/${id}`,

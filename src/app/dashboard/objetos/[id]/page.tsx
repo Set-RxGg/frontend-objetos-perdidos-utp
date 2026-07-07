@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 
 import { useReporte, useDeleteReporte } from '@/features/reportes';
 import type { ReporteEstado } from '@/features/reportes';
+import { useAuth } from '@/features/auth';
 import Image from 'next/image';
 
 import { Card, Button, Breadcrumbs } from '@/components/ui';
@@ -22,6 +23,9 @@ export default function ObjetoDetallePage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
+
+  const { user } = useAuth();
+  const isAdmin = user?.rol === 'administrativo';
 
   const { data: response, isLoading } = useReporte(id);
   const { mutate: deleteObject, isPending: isDeleting } = useDeleteReporte();
@@ -132,6 +136,14 @@ export default function ObjetoDetallePage() {
         </div>
 
         <div className="flex flex-wrap gap-3">
+          {isAdmin && (
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/dashboard/objetos/${id}/editar`)}
+            >
+              Editar
+            </Button>
+          )}
           {objeto.estado === 'extraviado' && (
             <Button
               variant="primary"
