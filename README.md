@@ -49,7 +49,7 @@ La aplicación estará disponible en `http://localhost:3000`.
 Copia el archivo `.env.example` a `.env.local`:
 
 ```env
-NEXT_PUBLIC_API_URL=http://18.118.29.133/
+NEXT_PUBLIC_API_URL=http://11.111.11.111/
 ```
 
 | Variable              | Descripción                               | Obligatorio |
