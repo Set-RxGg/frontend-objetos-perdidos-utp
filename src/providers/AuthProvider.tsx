@@ -42,8 +42,36 @@ function removeStoredValue(key: string): void {
   }
 }
 
+function hasValidSession(): boolean {
+  if (typeof document === 'undefined') return false;
+  const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === 'true';
+  return useMocks
+    ? document.cookie.includes('mock_auth=true')
+    : document.cookie.includes('access_token=');
+}
+
 function getInitialUser(): User | null {
+  if (!hasValidSession()) {
+    removeStoredValue('auth_user');
+    return null;
+  }
   return getStoredValue<User>('auth_user');
+}
+
+function setSessionCookie(): void {
+  if (typeof document === 'undefined') return;
+  const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === 'true';
+  if (useMocks) {
+    document.cookie = 'mock_auth=true; path=/; max-age=86400; SameSite=Lax';
+  }
+}
+
+function clearSessionCookie(): void {
+  if (typeof document === 'undefined') return;
+  const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === 'true';
+  if (useMocks) {
+    document.cookie = 'mock_auth=; path=/; max-age=0; SameSite=Lax';
+  }
 }
 
 export default function AuthProvider({
@@ -54,6 +82,7 @@ export default function AuthProvider({
   const login = useCallback((newUser: User) => {
     setUser(newUser);
     setStoredValue('auth_user', newUser);
+    setSessionCookie();
   }, []);
 
   const logout = useCallback(async () => {
@@ -64,6 +93,7 @@ export default function AuthProvider({
     }
     setUser(null);
     removeStoredValue('auth_user');
+    clearSessionCookie();
     window.location.href = '/auth/login';
   }, []);
 

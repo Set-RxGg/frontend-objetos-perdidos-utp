@@ -2,22 +2,24 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const publicRoutes = ['/auth/login', '/auth/register'];
+const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === 'true';
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const accessToken = request.cookies.get('access_token')?.value;
+  const cookieName = useMocks ? 'mock_auth' : 'access_token';
+  const sessionToken = request.cookies.get(cookieName)?.value;
 
   const isPublicRoute = publicRoutes.some((route) =>
     pathname.startsWith(route),
   );
 
-  if (!accessToken && !isPublicRoute) {
+  if (!sessionToken && !isPublicRoute) {
     const loginUrl = new URL('/auth/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (accessToken && isPublicRoute) {
+  if (sessionToken && isPublicRoute) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
