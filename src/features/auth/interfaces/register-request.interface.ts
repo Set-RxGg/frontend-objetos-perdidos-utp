@@ -5,4 +5,5 @@ export interface RegisterRequest {
   apellido: string;
   telefono?: string;
   password: string;
+  rol?: 'usuario' | 'administrativo';
 }

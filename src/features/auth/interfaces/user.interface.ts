@@ -1,11 +1,12 @@
 import type { AuthRole } from '../types/auth-role.type';
 
 export interface User {
-  id: string;
+  _id: string;
   cedula: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  nombre: string;
+  apellido: string;
   telefono?: string;
-  role: AuthRole;
+  rol: AuthRole;
+  activo?: boolean;
 }

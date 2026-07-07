@@ -7,6 +7,7 @@ export const registerSchema = z
     nombre: z.string().min(1, 'El nombre es requerido'),
     apellido: z.string().min(1, 'El apellido es requerido'),
     telefono: z.string().optional(),
+    rol: z.enum(['usuario', 'administrativo']).optional(),
     password: z
       .string()
       .min(8, 'La contraseña debe tener al menos 8 caracteres'),

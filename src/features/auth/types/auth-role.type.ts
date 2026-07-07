@@ -1,1 +1,1 @@
-export type AuthRole = 'ADMIN' | 'USER';
+export type AuthRole = 'usuario' | 'administrativo';

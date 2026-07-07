@@ -4,13 +4,23 @@ const clientEnvSchema = z.object({
   NEXT_PUBLIC_API_URL: z.url(),
 });
 
-const parsedEnv = clientEnvSchema.safeParse(process.env);
+function getEnv() {
+  const parsed = clientEnvSchema.safeParse({
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  });
 
-if (!parsedEnv.success) {
-  console.error('Invalid environment variables');
-  console.error(parsedEnv.error.issues);
+  if (!parsed.success) {
+    if (typeof window !== 'undefined') {
+      console.warn('Invalid environment variables', parsed.error.issues);
+      return { NEXT_PUBLIC_API_URL: '' };
+    }
 
-  throw new Error('Invalid environment variables.');
+    console.error('Invalid environment variables');
+    console.error(parsed.error.issues);
+    throw new Error('Invalid environment variables.');
+  }
+
+  return parsed.data;
 }
 
-export const env = parsedEnv.data;
+export const env = getEnv();
