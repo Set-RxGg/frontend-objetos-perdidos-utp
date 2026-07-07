@@ -1,26 +1,51 @@
+import { api } from '@/lib/axios';
+
 import type {
   LoginRequest,
   LoginResponse,
   RegisterRequest,
+  User,
 } from '../interfaces';
-
-import { loginMock, registerMock } from '../mocks';
 
 class AuthService {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    console.log('AuthService.login', credentials);
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    return loginMock;
+    const { data } = await api.post<LoginResponse>('/auth/login', credentials);
+    return data;
   }
 
-  async register(data: RegisterRequest): Promise<LoginResponse> {
-    console.log('AuthService.register', data);
+  async register(payload: RegisterRequest): Promise<LoginResponse> {
+    const { data } = await api.post<{
+      status: 'success' | 'error';
+      data: User;
+    }>('/auth/register', payload);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return {
+      status: data.status,
+      data: {
+        user: data.data,
+        expires_in: 900,
+      },
+    };
+  }
 
-    return registerMock;
+  async me(): Promise<{ status: string; data?: { user: User } }> {
+    try {
+      const { data } = await api.get<{
+        status: 'success' | 'error';
+        data: User;
+      }>('/auth/me');
+      if (data.status === 'success' && data.data) {
+        return { status: 'success', data: { user: data.data } };
+      }
+      return { status: 'error' };
+    } catch {
+      return { status: 'error' };
+    }
+  }
+
+  async logout(): Promise<void> {
+    await api.post('/auth/logout');
   }
 }
+
 export const authService = new AuthService();

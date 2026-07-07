@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { Toaster } from 'sonner';
 import './globals.css';
 import { AppProvider } from '@/providers';
 
@@ -25,11 +26,14 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
   return (
     <html
-      lang="en"
+      lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <AppProvider>{children}</AppProvider>
+        <AppProvider>
+          {children}
+          <Toaster richColors position="top-right" />
+        </AppProvider>
       </body>
     </html>
   );
