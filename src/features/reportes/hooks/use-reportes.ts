@@ -68,6 +68,23 @@ export function useDevolverReporte() {
   });
 }
 
+export function useUpdateReporte() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: CreateReporteRequest }) =>
+      reportesService.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: reportesQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: reportesQueryKeys.admin });
+      toast.success('Reporte actualizado exitosamente');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Error al actualizar reporte');
+    },
+  });
+}
+
 export function useDeleteReporte() {
   const queryClient = useQueryClient();
 
