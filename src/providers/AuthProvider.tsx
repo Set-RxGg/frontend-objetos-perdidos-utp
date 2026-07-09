@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import {
@@ -42,22 +42,6 @@ function removeStoredValue(key: string): void {
   }
 }
 
-function hasValidSession(): boolean {
-  if (typeof document === 'undefined') return false;
-  const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === 'true';
-  return useMocks
-    ? document.cookie.includes('mock_auth=true')
-    : document.cookie.includes('access_token=');
-}
-
-function getInitialUser(): User | null {
-  if (!hasValidSession()) {
-    removeStoredValue('auth_user');
-    return null;
-  }
-  return getStoredValue<User>('auth_user');
-}
-
 function setSessionCookie(): void {
   if (typeof document === 'undefined') return;
   const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === 'true';
@@ -77,7 +61,41 @@ function clearSessionCookie(): void {
 export default function AuthProvider({
   children,
 }: Readonly<AuthProviderProps>) {
-  const [user, setUser] = useState<User | null>(getInitialUser);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function initAuth() {
+      const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === 'true';
+
+      if (useMocks) {
+        if (document.cookie.includes('mock_auth=true')) {
+          const storedUser = getStoredValue<User>('auth_user');
+          if (storedUser) {
+            setUser(storedUser);
+          } else {
+            clearSessionCookie();
+          }
+        }
+      } else {
+        try {
+          const response = await authService.me();
+          if (response.status === 'success' && response.data?.user) {
+            setUser(response.data.user);
+            setStoredValue('auth_user', response.data.user);
+          } else {
+            removeStoredValue('auth_user');
+          }
+        } catch {
+          removeStoredValue('auth_user');
+        }
+      }
+
+      setIsLoading(false);
+    }
+
+    initAuth();
+  }, []);
 
   const login = useCallback((newUser: User) => {
     setUser(newUser);
@@ -101,11 +119,11 @@ export default function AuthProvider({
     () => ({
       user,
       isAuthenticated: !!user,
-      isLoading: false,
+      isLoading,
       login,
       logout,
     }),
-    [user, login, logout],
+    [user, isLoading, login, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

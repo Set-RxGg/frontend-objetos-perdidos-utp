@@ -8,6 +8,7 @@ import { useAuth } from '@/features/auth';
 import Image from 'next/image';
 
 import { Card, Button, Breadcrumbs } from '@/components/ui';
+import { env } from '@/config/env';
 
 const statusLabels: Record<ReporteEstado, string> = {
   extraviado: 'Extraviado',
@@ -73,7 +74,11 @@ export default function ObjetoDetallePage() {
         {objeto.foto_url && (
           <div className="mb-6 overflow-hidden rounded-lg">
             <Image
-              src={objeto.foto_url}
+              src={
+                objeto.foto_url.startsWith('/')
+                  ? `${env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')}${objeto.foto_url}`
+                  : objeto.foto_url
+              }
               alt={objeto.nombre_objeto}
               width={672}
               height={256}
@@ -137,26 +142,32 @@ export default function ObjetoDetallePage() {
 
         <div className="flex flex-wrap gap-3">
           {isAdmin && (
-            <Button
-              variant="outline"
-              onClick={() => router.push(`/dashboard/objetos/${id}/editar`)}
-            >
-              Editar
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                onClick={() => router.push(`/dashboard/objetos/${id}/editar`)}
+              >
+                Editar
+              </Button>
+              {objeto.estado === 'extraviado' && (
+                <Button
+                  variant="primary"
+                  onClick={() =>
+                    router.push(`/dashboard/entregas?objetoId=${objeto._id}`)
+                  }
+                >
+                  Generar Reporte de Devolución
+                </Button>
+              )}
+              <Button
+                variant="danger"
+                onClick={handleDelete}
+                loading={isDeleting}
+              >
+                Eliminar
+              </Button>
+            </>
           )}
-          {objeto.estado === 'extraviado' && (
-            <Button
-              variant="primary"
-              onClick={() =>
-                router.push(`/dashboard/entregas?objetoId=${objeto._id}`)
-              }
-            >
-              Generar Reporte de Devolución
-            </Button>
-          )}
-          <Button variant="danger" onClick={handleDelete} loading={isDeleting}>
-            Eliminar
-          </Button>
         </div>
       </Card>
     </div>
