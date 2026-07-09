@@ -5,10 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { useReporte, useDeleteReporte } from '@/features/reportes';
 import type { ReporteEstado } from '@/features/reportes';
 import { useAuth } from '@/features/auth';
-import Image from 'next/image';
 
 import { Card, Button, Breadcrumbs } from '@/components/ui';
-import { env } from '@/config/env';
 
 const statusLabels: Record<ReporteEstado, string> = {
   extraviado: 'Extraviado',
@@ -66,24 +64,24 @@ export default function ObjetoDetallePage() {
               {objeto.nombre_objeto}
             </h1>
             <p className="text-text-secondary mt-1 text-sm">
-              Reportado por usuario #{objeto.reportado_por}
+              {(() => {
+                const rp = objeto.reportado_por as
+                  string | { nombre: string; apellido: string };
+                return typeof rp === 'object'
+                  ? `Reportado por ${rp.nombre} ${rp.apellido}`
+                  : `Reportado por usuario #${rp}`;
+              })()}
             </p>
           </div>
         </div>
 
         {objeto.foto_url && (
           <div className="mb-6 overflow-hidden rounded-lg">
-            <Image
-              src={
-                objeto.foto_url.startsWith('/')
-                  ? `${env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')}${objeto.foto_url}`
-                  : objeto.foto_url
-              }
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={objeto.foto_url}
               alt={objeto.nombre_objeto}
-              width={672}
-              height={256}
               className="h-64 w-full object-cover"
-              unoptimized
             />
           </div>
         )}
