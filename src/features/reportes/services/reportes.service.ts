@@ -23,6 +23,15 @@ class ReportesService {
 
   async getById(id: string): Promise<{ status: string; data: Reporte }> {
     try {
+      const { data } = await api.get<{ status: string; data: Reporte }>(
+        `/reportes/${id}`,
+      );
+      return data;
+    } catch {
+      // single endpoint failed — fall through to list search
+    }
+
+    try {
       const { data } = await api.get<{ status: string; data: Reporte[] }>(
         '/reportes/admin',
       );

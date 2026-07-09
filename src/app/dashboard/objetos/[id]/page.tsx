@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useReporte, useDeleteReporte } from '@/features/reportes';
 import type { ReporteEstado } from '@/features/reportes';
 import { useAuth } from '@/features/auth';
+import { env } from '@/config/env';
 
 import { Card, Button, Breadcrumbs } from '@/components/ui';
 
@@ -79,7 +80,11 @@ export default function ObjetoDetallePage() {
           <div className="mb-6 overflow-hidden rounded-lg">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={objeto.foto_url}
+              src={
+                objeto.foto_url.startsWith('/')
+                  ? `${env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')}${objeto.foto_url}`
+                  : objeto.foto_url
+              }
               alt={objeto.nombre_objeto}
               className="h-64 w-full object-cover"
             />

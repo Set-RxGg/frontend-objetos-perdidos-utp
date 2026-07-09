@@ -13,6 +13,7 @@ import {
 import type { CreateReporteSchema } from '@/features/reportes';
 import { Button, Card, Input, Label, Breadcrumbs } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { env } from '@/config/env';
 
 const lugares = [
   { value: 'GARITA_SEGURIDAD' as const, label: 'Garita de Seguridad' },
@@ -26,7 +27,11 @@ function EditarForm({ id }: { id: string }) {
 
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const reporte = response?.data;
-  const fotoUrl = reporte?.foto_url ?? null;
+  const fotoUrl = reporte?.foto_url
+    ? reporte.foto_url.startsWith('/')
+      ? `${env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')}${reporte.foto_url}`
+      : reporte.foto_url
+    : null;
   const preview = localPreview ?? fotoUrl;
 
   const {
